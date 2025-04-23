@@ -12,19 +12,19 @@ reference_df = pd.read_csv("C:/Users/Ashok Kumar/reference_data.csv")  # Preproc
 def predict_borrower(user_input):
     input_df = pd.DataFrame([user_input])
 
-    # Drop both target columns from reference_df to avoid them being used as features
-    ref_features_df = reference_df.drop(columns=['loan_status', 'loan_amnt'], errors='ignore')
+    # Drop target columns from reference_df for proper model input
+    model_input_df = reference_df.drop(columns=['loan_status', 'loan_amnt'])
 
-    # Combine input with reference data for proper encoding
-    full_df = pd.concat([ref_features_df, input_df], axis=0)
+    # Append new user input
+    full_df = pd.concat([model_input_df, input_df], axis=0)
 
-    # One-hot encoding
+    # One-hot encode
     full_encoded = pd.get_dummies(full_df)
 
-    # Align feature columns with model
+    # Align columns to match training data used by models
     full_encoded = full_encoded.reindex(columns=clf.feature_names_in_, fill_value=0)
 
-    # Predict
+    # Prediction
     risk = clf.predict(full_encoded.tail(1))[0]
     loan_amt = regressor.predict(full_encoded.tail(1))[0]
 
