@@ -12,14 +12,16 @@ reference_df = pd.read_csv("C:/Users/Ashok Kumar/reference_data.csv")  # Preproc
 def predict_borrower(user_input):
     input_df = pd.DataFrame([user_input])
 
-    # Drop columns not used for prediction
-    ref_features_df = reference_df.drop(columns=['loan_status', 'loan_amnt'])
+    # Drop both target columns from reference_df to avoid them being used as features
+    ref_features_df = reference_df.drop(columns=['loan_status', 'loan_amnt'], errors='ignore')
 
-    # Combine and encode
+    # Combine input with reference data for proper encoding
     full_df = pd.concat([ref_features_df, input_df], axis=0)
+
+    # One-hot encoding
     full_encoded = pd.get_dummies(full_df)
 
-    # Ensure column order and presence match the model training
+    # Align feature columns with model
     full_encoded = full_encoded.reindex(columns=clf.feature_names_in_, fill_value=0)
 
     # Predict
